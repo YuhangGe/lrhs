@@ -11,6 +11,13 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
+    'lines-between-class-members': [
+      'error',
+      'always',
+      {
+        exceptAfterSingleLine: true,
+      },
+    ],
     'import/order': 'error',
     'no-console': 'off',
     'prettier/prettier': 'error',
