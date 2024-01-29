@@ -1,10 +1,10 @@
-type Listener = (...args: unknown[]) => void;
+type Listener<A = void> = (arg: A) => void;
 
-export class Signal {
+export class Signal<A = void> {
   /**
    * listeners set
    */
-  #l: Set<Listener>;
+  #l: Set<Listener<A>>;
   /**
    * name
    */
@@ -13,18 +13,21 @@ export class Signal {
     this.#n = name;
     this.#l = new Set();
   }
-  on(listener: Listener) {
+
+  on(listener: Listener<A>) {
     this.#l.add(listener);
     return () => {
       this.#l.delete(listener);
     };
   }
-  off(listener: Listener) {
+
+  off(listener: Listener<A>) {
     this.#l.delete(listener);
   }
-  emit(...args: unknown[]) {
+
+  emit(arg: A) {
     this.#l.forEach((listener) => {
-      listener(...args);
+      listener(arg);
     });
   }
 }

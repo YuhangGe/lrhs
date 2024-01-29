@@ -1,21 +1,17 @@
 {
   "compilerOptions": {
-    "module": "esnext",
+    "module": "Node16",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "target": "es2020",
+    "target": "ES2022",
     "jsx": "react-jsx",
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "stripInternal": true,
     "alwaysStrict": true,
-    "moduleResolution": "node",
-    "declaration": true,
-    "declarationDir": "lib",
-    "sourceMap": true,
-    "outDir": ".tmp",
+    "moduleResolution": "Node16",
     "noEmit": true,
     "baseUrl": "."
   },
-  "include": ["./src/**/*", "./demo/**/*"]
+  "include": ["./src/**/*", "./scripts/**/*", ".eslintrc.js"]
 }

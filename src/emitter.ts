@@ -5,6 +5,9 @@ export type EmitterListenerWith0Arg = () => void;
 
 type Listener = (...args: unknown[]) => void;
 export class Emitter {
+  /**
+   * event listeners map
+   */
   #lismap: Map<string | symbol, Set<Listener>> = new Map();
 
   on(eventName: string | symbol, eventListener: EmitterListenerWith0Arg): void;

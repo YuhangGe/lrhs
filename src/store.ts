@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Emitter } from './emitter';
+import { Signal } from './signal';
 
 const NO_DATA_WARNING = 'store has not been initialized, use resetStore to set data';
-const REST_STORE = Symbol();
 
 export function createStore<S extends object>(data?: S) {
   let plainData = data;
   const emitter = new Emitter();
-
+  const resetSignal = new Signal();
   function useStore<P extends keyof S>(propName: P) {
     if (!plainData) {
       // eslint-disable-next-line no-console
@@ -20,7 +20,7 @@ export function createStore<S extends object>(data?: S) {
       function onReset() {
         setData(plainData?.[propName]);
       }
-      emitter.on(REST_STORE, onReset);
+      resetSignal.on(onReset);
 
       function onUpdate(newValue: S[P]) {
         setData(newValue);
@@ -28,7 +28,7 @@ export function createStore<S extends object>(data?: S) {
       emitter.on(propName as string, onUpdate);
 
       return () => {
-        emitter.off(REST_STORE, onReset);
+        resetSignal.off(onReset);
         emitter.off(propName as string, onUpdate);
       };
     }, []);
@@ -54,7 +54,7 @@ export function createStore<S extends object>(data?: S) {
   }
   function resetStore(data: S) {
     plainData = data;
-    emitter.emit(REST_STORE);
+    resetSignal.emit();
   }
   return {
     useStore,

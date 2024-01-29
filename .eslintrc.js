@@ -1,72 +1,40 @@
+/**
+ * @type {import('eslint-define-config').ESLintConfig}
+ */
 module.exports = {
-  plugins: ['import'],
-  env: {
-    node: true,
-    es6: true,
-  },
-  extends: ['plugin:import/recommended', 'plugin:prettier/recommended'],
-
+  env: { node: false, browser: true },
+  parser: '@typescript-eslint/parser',
+  plugins: ['import', '@typescript-eslint', 'prettier'],
+  extends: [
+    'eslint:recommended',
+    'plugin:@typescript-eslint/recommended',
+    'plugin:import/recommended',
+    'plugin:prettier/recommended',
+  ],
   parserOptions: {
-    ecmaVersion: 2020,
     sourceType: 'module',
+    project: ['./tsconfig.json'],
   },
   rules: {
-    'lines-between-class-members': [
-      'error',
-      'always',
-      {
-        exceptAfterSingleLine: true,
-      },
-    ],
     'import/order': 'error',
-    'no-console': 'off',
+    'import/no-unresolved': 'off',
+    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/no-non-null-assertion': 'error',
+    'no-console': 'error',
     'prettier/prettier': 'error',
+    '@typescript-eslint/no-floating-promises': ['error'],
+    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/explicit-module-boundary-types': 'off',
+    '@typescript-eslint/prefer-optional-chain': 'error',
+    '@typescript-eslint/consistent-type-imports': 'error',
   },
   overrides: [
     {
-      files: ['src/**/*.{ts,tsx}', 'demo/**/*.{ts,tsx}'],
-      extends: [
-        'plugin:@typescript-eslint/recommended',
-        'plugin:import/recommended',
-        'plugin:import/typescript',
-        'plugin:prettier/recommended',
-      ],
-      parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: 'module',
-        project: ['./tsconfig.json'], // Specify it only for TypeScript files
-      },
-      settings: {
-        'import/parsers': {
-          '@typescript-eslint/parser': ['.ts', '.tsx'],
-        },
-        'import/resolver': {
-          typescript: {
-            alwaysTryTypes: true, // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
-
-            // Choose from one of the "project" configs below or omit to use <root>/tsconfig.json by default
-
-            // use <root>/path/to/folder/tsconfig.json
-            project: './tsconfig.json',
-          },
-        },
-      },
-      env: {
-        es6: true,
-        browser: true,
-      },
+      files: ['./scripts/**/*.ts'],
+      env: { node: true, browser: false },
       rules: {
-        'no-console': 'error',
-        '@typescript-eslint/no-unused-vars': 'error',
-        '@typescript-eslint/no-non-null-assertion': 'error',
-        '@typescript-eslint/no-explicit-any': 'error',
-        '@typescript-eslint/explicit-module-boundary-types': 'off',
-        '@typescript-eslint/prefer-optional-chain': 'error',
-
-        // '@typescript-eslint/no-var-requires': 'off',
-        // '@typescript-eslint/no-explicit-any': 'off',
-        // '@typescript-eslint/explicit-module-boundary-types': 'off',
-        // '@typescript-eslint/prefer-optional-chain': 'off',
+        'no-console': 'off',
+        '@typescript-eslint/no-var-requires': 'off',
       },
     },
   ],
