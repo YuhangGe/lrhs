@@ -1,4 +1,4 @@
-# kkstore
+# light react hook store
 
 > react light weight data share store, with strict type.
 
@@ -8,8 +8,8 @@
 
 ```ts
 // /src/store/somestore.ts
-import kkstore from 'kkstore';
-const { useStore } = kkstore({
+import store from 'lrhs';
+const { useStore } = store({
   a: 10,
   b: 'hello',
 });
