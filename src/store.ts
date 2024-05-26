@@ -8,16 +8,19 @@ export function createStore<S extends object>(data?: S) {
   let plainData = data;
   const emitter = new Emitter();
   const resetSignal = new Signal();
+  const hooks = new Map<keyof S, Set<(v: unknown) => void>>();
   function setProp<T extends keyof S>(prop: T, value: S[T]) {
     if (!plainData) {
       // eslint-disable-next-line no-console
       console.warn(NO_DATA_WARNING);
       return;
     }
-    const oldV = plainData?.[prop];
+    const oldV = plainData[prop];
     if (oldV === value) return; // ignore if nothing changed
     plainData[prop] = value;
     emitter.emit(prop as string, value);
+    const hookFnSet = hooks.get(prop);
+    hookFnSet?.forEach((hookFn) => hookFn(value));
   }
   function useStore<P extends keyof S>(propName: P) {
     if (!plainData) {
@@ -62,6 +65,13 @@ export function createStore<S extends object>(data?: S) {
     }
     return plainData?.[prop];
   }
+  function hook<T extends keyof S>(prop: T, hookFn: (v: S[T]) => void) {
+    let fnSet = hooks.get(prop);
+    if (!fnSet) {
+      hooks.set(prop, (fnSet = new Set()));
+    }
+    fnSet.add(hookFn);
+  }
 
   return {
     useStore,
@@ -74,5 +84,6 @@ export function createStore<S extends object>(data?: S) {
     },
     get: getProp,
     set: setProp,
+    hook,
   };
 }
