@@ -9,19 +9,21 @@ export function createStore<S extends object>(data?: S) {
   const emitter = new Emitter();
   const resetSignal = new Signal();
   const hooks = new Map<keyof S, Set<(v: unknown) => void>>();
-  function setProp<T extends keyof S>(prop: T, value: S[T]) {
+
+  function setProp<T extends keyof S>(prop: T, value: S[T], forceUpdate = false) {
     if (!plainData) {
       // eslint-disable-next-line no-console
       console.warn(NO_DATA_WARNING);
       return;
     }
     const oldV = plainData[prop];
-    if (oldV === value) return; // ignore if nothing changed
+    if (oldV === value && !forceUpdate) return; // ignore if nothing changed
     plainData[prop] = value;
     emitter.emit(prop as string, value);
     const hookFnSet = hooks.get(prop);
     hookFnSet?.forEach((hookFn) => hookFn(value));
   }
+
   function useStore<P extends keyof S>(propName: P) {
     if (!plainData) {
       // eslint-disable-next-line no-console
@@ -65,6 +67,7 @@ export function createStore<S extends object>(data?: S) {
     }
     return plainData?.[prop];
   }
+
   function hook<T extends keyof S>(prop: T, hookFn: (v: S[T]) => void) {
     let fnSet = hooks.get(prop);
     if (!fnSet) {
@@ -74,16 +77,35 @@ export function createStore<S extends object>(data?: S) {
   }
 
   return {
+    /**
+     * hook to use property state of current store object, similar to react useState hook.
+     * @param propName property of current store object
+     * @returns [property value, property update function]
+     */
     useStore,
+    /**
+     * reset whole store object and emit events of every property
+     */
     resetStore,
     /**
-     * get inner plain data of store
+     * get inner whole store object
      */
     getStore() {
       return plainData as S;
     },
     get: getProp,
+    /**
+     * update/set property value and emit event
+     * @param prop property name of current store object
+     * @param value property value to be updated
+     * @param forceUpdate force update and emit event even value not changed, default is false
+     */
     set: setProp,
+    /**
+     * add hook function to property when value of this property is updated
+     * @param prop property name of current store object
+     * @param hookFn hook function to be executed after the property is changed
+     */
     hook,
   };
 }
