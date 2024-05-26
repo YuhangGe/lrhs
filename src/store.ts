@@ -8,6 +8,17 @@ export function createStore<S extends object>(data?: S) {
   let plainData = data;
   const emitter = new Emitter();
   const resetSignal = new Signal();
+  function setProp<T extends keyof S>(prop: T, value: S[T]) {
+    if (!plainData) {
+      // eslint-disable-next-line no-console
+      console.warn(NO_DATA_WARNING);
+      return;
+    }
+    const oldV = plainData?.[prop];
+    if (oldV === value) return; // ignore if nothing changed
+    plainData[prop] = value;
+    emitter.emit(prop as string, value);
+  }
   function useStore<P extends keyof S>(propName: P) {
     if (!plainData) {
       // eslint-disable-next-line no-console
@@ -33,22 +44,10 @@ export function createStore<S extends object>(data?: S) {
       };
     }, []);
 
-    function set(p: P, v: S[P]) {
-      if (!plainData) {
-        // eslint-disable-next-line no-console
-        console.warn(NO_DATA_WARNING);
-        return;
-      }
-      const oldV = plainData?.[p];
-      if (oldV === v) return; // ignore if nothing changed
-      plainData[p] = v;
-      emitter.emit(p as string, v);
-    }
-
     return [
       data,
       (v: S[P]) => {
-        set(propName, v);
+        setProp(propName, v);
       },
     ] as [S[P], (v: S[P]) => void];
   }
@@ -56,6 +55,14 @@ export function createStore<S extends object>(data?: S) {
     plainData = data;
     resetSignal.emit();
   }
+  function getProp<T extends keyof S>(prop: T): S[T] {
+    if (!plainData) {
+      // eslint-disable-next-line no-console
+      console.warn(NO_DATA_WARNING);
+    }
+    return plainData?.[prop];
+  }
+
   return {
     useStore,
     resetStore,
@@ -63,7 +70,9 @@ export function createStore<S extends object>(data?: S) {
      * get inner plain data of store
      */
     getStore() {
-      return plainData;
+      return plainData as S;
     },
+    get: getProp,
+    set: setProp,
   };
 }
