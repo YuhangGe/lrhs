@@ -5,24 +5,28 @@ import { Signal } from './signal';
 const NO_DATA_WARNING = 'store has not been initialized, use resetStore to set data';
 
 export function createStore<S extends object>(data?: S) {
+  type SetFn<P extends keyof S> = (oldValue: S[P]) => S[P];
+  type HookFn<P extends keyof S> = (value: S[P], prop: P) => void;
+
   let plainData = data;
   const emitter = new Emitter();
   const resetSignal = new Signal();
-  const hooks = new Map<keyof S, Set<(v: unknown) => void>>();
-  type SetFn<T extends keyof S> = (oldValue: S[T]) => S[T];
-  function setProp<T extends keyof S>(prop: T, valueOrSetFn: S[T] | SetFn<T>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const hooks = new Map<keyof S, Set<HookFn<any>>>();
+
+  function setProp<P extends keyof S>(prop: P, valueOrSetFn: S[P] | ((oldValue: S[P]) => S[P])) {
     if (!plainData) {
       // eslint-disable-next-line no-console
       console.warn(NO_DATA_WARNING);
       return;
     }
     const oldV = plainData[prop];
-    const value = typeof valueOrSetFn === 'function' ? (valueOrSetFn as SetFn<T>)(oldV) : valueOrSetFn;
+    const value = typeof valueOrSetFn === 'function' ? (valueOrSetFn as SetFn<P>)(oldV) : valueOrSetFn;
     if (oldV === value) return; // ignore if nothing changed
     plainData[prop] = value;
     emitter.emit(prop as string, value);
     const hookFnSet = hooks.get(prop);
-    hookFnSet?.forEach((hookFn) => hookFn(value));
+    hookFnSet?.forEach((hookFn) => hookFn(value, prop));
   }
 
   function useStore<P extends keyof S>(propName: P) {
@@ -55,13 +59,13 @@ export function createStore<S extends object>(data?: S) {
       (v: S[P] | SetFn<P>) => {
         setProp(propName, v);
       },
-    ] as [S[P], (v: S[P] | SetFn<P>) => void];
+    ] as [S[P], (v: S[P] | ((oldValue: S[P]) => S[P])) => void];
   }
   function resetStore(data: S) {
     plainData = data;
     resetSignal.emit();
   }
-  function getProp<T extends keyof S>(prop: T): S[T] {
+  function getProp<P extends keyof S>(prop: P): S[P] {
     if (!plainData) {
       // eslint-disable-next-line no-console
       console.warn(NO_DATA_WARNING);
@@ -69,7 +73,7 @@ export function createStore<S extends object>(data?: S) {
     return plainData?.[prop];
   }
 
-  function hook<T extends keyof S>(prop: T, hookFn: (v: S[T]) => void) {
+  function hook<P extends keyof S>(prop: P, hookFn: (value: S[P], prop: P) => void) {
     let fnSet = hooks.get(prop);
     if (!fnSet) {
       hooks.set(prop, (fnSet = new Set()));
