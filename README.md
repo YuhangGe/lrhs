@@ -36,4 +36,9 @@ globalStore.getStore(); // get whole store data object
 const [a, setA] = globalStore.useStore('a');
 console.log(a);
 setA(30);
+
+// hook on updated
+globalStore.hook('a', (newValue) => {
+  localStorage.setItem('SOME_KEY', JSON.stringify(newValue));
+});
 ```
