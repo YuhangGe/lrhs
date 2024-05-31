@@ -9,15 +9,16 @@ export function createStore<S extends object>(data?: S) {
   const emitter = new Emitter();
   const resetSignal = new Signal();
   const hooks = new Map<keyof S, Set<(v: unknown) => void>>();
-
-  function setProp<T extends keyof S>(prop: T, value: S[T], forceUpdate = false) {
+  type SetFn<T extends keyof S> = (oldValue: S[T]) => S[T];
+  function setProp<T extends keyof S>(prop: T, valueOrSetFn: S[T] | SetFn<T>) {
     if (!plainData) {
       // eslint-disable-next-line no-console
       console.warn(NO_DATA_WARNING);
       return;
     }
     const oldV = plainData[prop];
-    if (oldV === value && !forceUpdate) return; // ignore if nothing changed
+    const value = typeof valueOrSetFn === 'function' ? (valueOrSetFn as SetFn<T>)(oldV) : valueOrSetFn;
+    if (oldV === value) return; // ignore if nothing changed
     plainData[prop] = value;
     emitter.emit(prop as string, value);
     const hookFnSet = hooks.get(prop);
@@ -51,10 +52,10 @@ export function createStore<S extends object>(data?: S) {
 
     return [
       data,
-      (v: S[P]) => {
+      (v: S[P] | SetFn<P>) => {
         setProp(propName, v);
       },
-    ] as [S[P], (v: S[P]) => void];
+    ] as [S[P], (v: S[P] | SetFn<P>) => void];
   }
   function resetStore(data: S) {
     plainData = data;
