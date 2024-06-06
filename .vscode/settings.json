@@ -1,10 +1,22 @@
 {
   "editor.tabSize": 2,
   "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "prettier.configPath": ".prettierrc.js",
-  // "prettier.prettierPath": "node_modules/prettier",
-  "editor.codeActionsOnSave": {
-    "source.fixAll": "explicit"
+  "[javascript]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+    }
+  },
+  "[typescript]": {
+    "editor.formatOnSave": false,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+    }
   }
 }

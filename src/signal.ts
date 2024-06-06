@@ -5,12 +5,7 @@ export class Signal<A = void> {
    * listeners set
    */
   #l: Set<Listener<A>>;
-  /**
-   * name
-   */
-  #n?: string | symbol;
-  constructor(name?: string | symbol) {
-    this.#n = name;
+  constructor() {
     this.#l = new Set();
   }
 
@@ -32,6 +27,6 @@ export class Signal<A = void> {
   }
 }
 
-export function signal(name?: string | symbol) {
-  return new Signal(name);
+export function signal() {
+  return new Signal();
 }

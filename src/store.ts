@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react';
 import { Emitter } from './emitter';
 import { Signal } from './signal';
 
-const NO_DATA_WARNING = 'store has not been initialized, use resetStore to set data';
+const noDataErr = () => {
+  throw new Error('missing store data, put init data to "createStore" or set it by "resetStore"');
+};
 
-export function createStore<S extends object>(data?: S) {
+export function createStore<S extends Record<string, unknown> = Record<string, unknown>>(data?: S) {
   type SetFn<P extends keyof S> = (oldValue: S[P]) => S[P];
   type HookFn<P extends keyof S> = (value: S[P], prop: P) => void;
 
-  let plainData = data;
+  let plainData = data as S;
   const emitter = new Emitter();
   const resetSignal = new Signal();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,12 +18,11 @@ export function createStore<S extends object>(data?: S) {
 
   function setProp<P extends keyof S>(prop: P, valueOrSetFn: S[P] | ((oldValue: S[P]) => S[P])) {
     if (!plainData) {
-      // eslint-disable-next-line no-console
-      console.warn(NO_DATA_WARNING);
-      return;
+      noDataErr();
     }
     const oldV = plainData[prop];
-    const value = typeof valueOrSetFn === 'function' ? (valueOrSetFn as SetFn<P>)(oldV) : valueOrSetFn;
+    const value =
+      typeof valueOrSetFn === 'function' ? (valueOrSetFn as SetFn<P>)(oldV) : valueOrSetFn;
     if (oldV === value) return; // ignore if nothing changed
     plainData[prop] = value;
     emitter.emit(prop as string, value);
@@ -31,11 +32,10 @@ export function createStore<S extends object>(data?: S) {
 
   function useStore<P extends keyof S>(propName: P) {
     if (!plainData) {
-      // eslint-disable-next-line no-console
-      console.warn(NO_DATA_WARNING);
+      noDataErr();
     }
 
-    const [data, setData] = useState(plainData?.[propName]);
+    const [data, setData] = useState(plainData[propName]);
 
     useEffect(() => {
       function onReset() {
@@ -67,10 +67,9 @@ export function createStore<S extends object>(data?: S) {
   }
   function getProp<P extends keyof S>(prop: P): S[P] {
     if (!plainData) {
-      // eslint-disable-next-line no-console
-      console.warn(NO_DATA_WARNING);
+      noDataErr();
     }
-    return plainData?.[prop];
+    return plainData[prop];
   }
 
   function hook<P extends keyof S>(prop: P, hookFn: (value: S[P], prop: P) => void) {

@@ -1,6 +1,9 @@
 import path from 'path';
+import { fileURLToPath } from 'node:url';
 import type { BuildOptions } from 'esbuild';
 import esbuild from 'esbuild';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 function getOption(type: 'cjs' | 'esm'): BuildOptions {
   return {
@@ -19,7 +22,7 @@ function getOption(type: 'cjs' | 'esm'): BuildOptions {
           target: 'esnext',
         }),
     // outdir: 'dist',
-    outfile: `dist/index.${type === 'cjs' ? 'cjs' : 'mjs'}`,
+    outfile: `dist/index.${type === 'cjs' ? 'cjs' : 'js'}`,
   };
 }
 
@@ -38,7 +41,7 @@ async function bundle(type: 'cjs' | 'esm') {
   if (process.env.WATCH) {
     const ctx = await esbuild.context(getOption('esm'));
     await ctx.watch();
-    console.log('Watching For dist/index.mjs bundle...');
+    console.log('Watching For dist/index.js bundle...');
   }
 })().catch((ex) => {
   console.error(ex);

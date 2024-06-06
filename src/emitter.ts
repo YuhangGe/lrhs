@@ -13,7 +13,10 @@ export class Emitter {
   on(eventName: string | symbol, eventListener: EmitterListenerWith0Arg): void;
   on<P1>(eventName: string | symbol, eventListener: EmitterListenerWith1Arg<P1>): void;
   on<P1, P2>(eventName: string | symbol, eventListener: EmitterListenerWith2Arg<P1, P2>): void;
-  on<P1, P2, P3>(eventName: string | symbol, eventListener: EmitterListenerWith3Arg<P1, P2, P3>): void;
+  on<P1, P2, P3>(
+    eventName: string | symbol,
+    eventListener: EmitterListenerWith3Arg<P1, P2, P3>,
+  ): void;
   on(eventName: string | symbol, eventListener: Listener) {
     let arr = this.#lismap.get(eventName);
     if (!arr) {
@@ -28,7 +31,10 @@ export class Emitter {
   off(eventName: string | symbol, eventListener?: EmitterListenerWith0Arg): void;
   off<P1>(eventName: string | symbol, eventListener?: EmitterListenerWith1Arg<P1>): void;
   off<P1, P2>(eventName: string | symbol, eventListener?: EmitterListenerWith2Arg<P1, P2>): void;
-  off<P1, P2, P3>(eventName: string | symbol, eventListener?: EmitterListenerWith3Arg<P1, P2, P3>): void;
+  off<P1, P2, P3>(
+    eventName: string | symbol,
+    eventListener?: EmitterListenerWith3Arg<P1, P2, P3>,
+  ): void;
   off(eventName: string | symbol, eventListener?: Listener) {
     const arr = this.#lismap.get(eventName);
     if (!arr) {
