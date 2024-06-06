@@ -6,7 +6,7 @@ const noDataErr = () => {
   throw new Error('missing store data, put init data to "createStore" or set it by "resetStore"');
 };
 
-export function createStore<S extends Record<string, unknown> = Record<string, unknown>>(data?: S) {
+export function createStore<S extends object = Record<string, unknown>>(data?: S) {
   type SetFn<P extends keyof S> = (oldValue: S[P]) => S[P];
   type HookFn<P extends keyof S> = (value: S[P], prop: P) => void;
 

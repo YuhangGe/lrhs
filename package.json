@@ -1,6 +1,6 @@
 {
   "name": "lrhs",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "description": "light weight react hook data store",
   "main": "dist/index.js",
   "type": "module",
